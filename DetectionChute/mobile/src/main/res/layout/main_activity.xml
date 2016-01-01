@@ -9,18 +9,24 @@
 
     <Button
         android:id="@+id/button_alarm"
-        android:layout_width="138dp"
-        android:layout_height="110dp"
+        android:layout_width="170dp"
+        android:layout_height="170dp"
         android:enabled="false"
         android:text="@string/send_message1"
-        android:layout_weight="0.01" />
+        android:textSize="27sp"
+        android:textColor="#ffffff"
+        android:background="@drawable/button_circle_blue"
+        android:layout_gravity="center_horizontal" />
 
     <Button
         android:id="@+id/button_stop"
-        android:layout_width="138dp"
-        android:layout_height="110dp"
-        android:enabled="false"
+        android:layout_width="170dp"
+        android:layout_height="170dp"
+        android:layout_gravity="center|center"
         android:text="@string/stop_alarm"
-        android:layout_gravity="center" />
+        android:textSize="27sp"
+        android:textColor="#ffffff"
+        android:background="@drawable/button_circle_red"
+        />
 
 </LinearLayout>

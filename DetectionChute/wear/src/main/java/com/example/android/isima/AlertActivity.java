@@ -3,21 +3,23 @@
 package com.example.android.isima;
 
 import android.app.Activity;
+import android.app.Notification;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.os.Vibrator;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.wearable.activity.ConfirmationActivity;
 import android.support.wearable.view.BoxInsetLayout;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -29,7 +31,8 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
-public class MainActivity extends Activity {
+
+public class AlertActivity extends Activity {
     private final String PATH_ALARM = "/alarm";
     private final String PATH_STOP = "/stop";
 
@@ -47,9 +50,13 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.main_activity);
-        startService(new Intent(MainActivity.this, MyService.class));
+        startService(new Intent(AlertActivity.this, MyServiceWear.class));
+
+
         handler = new Handler();
         mContainerView = (BoxInsetLayout) findViewById(R.id.container);
 
@@ -67,10 +74,21 @@ public class MainActivity extends Activity {
             }
         }, 100);
 
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Wearable.MessageApi.sendMessage(apiClient, remoteNodeId, PATH_ALARM, null);
+            }
+        }, 500);
+
+
         //Alarm = findViewById(R.id.button_alarm);
         buttonStop = findViewById(R.id.button_stop);
         //mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.alarm);
         vibrator = (Vibrator) getSystemService(getApplicationContext().VIBRATOR_SERVICE);
+        startVibrate();
+
+
 
 
         // Set message1Button onClickListener to send message 1
@@ -91,12 +109,15 @@ public class MainActivity extends Activity {
                          }
                          startActivity(intent);
                      }
+
                  });
+
              }
          });*/
 
         // Set message1Button onClickListener to send message 1
         buttonStop.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
                 Wearable.MessageApi.sendMessage(apiClient, remoteNodeId, PATH_STOP, null).setResultCallback(new ResultCallback<MessageApi.SendMessageResult>() {
@@ -107,6 +128,8 @@ public class MainActivity extends Activity {
                             intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.SUCCESS_ANIMATION);
                             intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, getString(R.string.message2_sent));
                             stopVibrate();
+                            finish();
+
                         } else {
                             intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.FAILURE_ANIMATION);
                             intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, getString(R.string.error_message2));
@@ -115,8 +138,8 @@ public class MainActivity extends Activity {
                     }
                 });
             }
-        });
 
+        });
 
 
         // Create NodeListener that enables buttons when a node is connected and disables buttons when a node is disconnected
@@ -129,12 +152,15 @@ public class MainActivity extends Activity {
                     public void run() {
                         //buttonAlarm.setEnabled(true);
                         buttonStop.setEnabled(true);
+
+
                     }
                 });
                 Intent intent = new Intent(getApplicationContext(), ConfirmationActivity.class);
                 intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.SUCCESS_ANIMATION);
                 intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, getString(R.string.peer_connected));
                 startActivity(intent);
+
             }
 
             @Override
@@ -142,8 +168,8 @@ public class MainActivity extends Activity {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                         //buttonAlarm.setEnabled(false);
-                         buttonStop.setEnabled(false);
+                        //buttonAlarm.setEnabled(false);
+                        buttonStop.setEnabled(false);
                     }
                 });
                 Intent intent = new Intent(getApplicationContext(), ConfirmationActivity.class);
@@ -159,8 +185,7 @@ public class MainActivity extends Activity {
             public void onMessageReceived(MessageEvent messageEvent) {
                 if (messageEvent.getPath().equals(PATH_ALARM)) {
                     startVibrate();
-                }
-                else if (messageEvent.getPath().equals(PATH_STOP)) {
+                } else if (messageEvent.getPath().equals(PATH_STOP)) {
                     stopVibrate();
                 }
             }
@@ -192,8 +217,10 @@ public class MainActivity extends Activity {
                 //buttonAlarm.setEnabled(false);
                 buttonStop.setEnabled(false);
 
-            }
+        }
         }).addApi(Wearable.API).build();
+
+
     }
 
     @Override
@@ -214,10 +241,14 @@ public class MainActivity extends Activity {
         } else {
             apiClient.connect();
         }
+
+
+
     }
 
     @Override
     protected void onPause() {
+        stopVibrate();
         // Unregister Node and Message listeners, disconnect GoogleApiClient and disable buttons
         Wearable.NodeApi.removeListener(apiClient, nodeListener);
         Wearable.MessageApi.removeListener(apiClient, messageListener);
@@ -228,8 +259,7 @@ public class MainActivity extends Activity {
     }
 
 
-    void startVibrate()
-    {
+    void startVibrate() {
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -243,14 +273,13 @@ public class MainActivity extends Activity {
     }
 
 
-    void stopVibrate()
-    {
+    void stopVibrate() {
         handler.post(new Runnable() {
             @Override
             public void run() {
 
 
-                    vibrator.cancel();
+                vibrator.cancel();
 
 
             }

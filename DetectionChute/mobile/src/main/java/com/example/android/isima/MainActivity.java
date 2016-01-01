@@ -17,11 +17,15 @@
 package com.example.android.isima;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
+import android.os.Vibrator;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -50,18 +54,32 @@ public class MainActivity extends Activity {
     private String remoteNodeId;
     private MessageApi.MessageListener messageListener;
     private Handler handler;
+    private Vibrator vibrator;
     private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-
+        startService(new Intent(MainActivity.this, MyServicePhone.class));
         handler = new Handler();
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.FULL_WAKE_LOCK, "My Tag");
+        wl.acquire();
 
         buttonAlarm = findViewById(R.id.button_alarm);
         buttonStop = findViewById(R.id.button_stop);
-        mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.alarm);;
+        mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.alarm);
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Wearable.MessageApi.sendMessage(apiClient, remoteNodeId, PATH_ALARM, null);
+            }
+        }, 500);
+        vibrator = (Vibrator) getSystemService(getApplicationContext().VIBRATOR_SERVICE);
+        startVibrate();
+
 
         // Set message1Button onClickListener to send message 1
         buttonAlarm.setOnClickListener(new View.OnClickListener() {
@@ -138,9 +156,11 @@ public class MainActivity extends Activity {
             public void onMessageReceived(MessageEvent messageEvent) {
                 if (messageEvent.getPath().equals(PATH_ALARM)) {
                     playAlarm();
+                    stopVibrate();
 
                 } else if (messageEvent.getPath().equals(PATH_STOP)) {
                     stopAlarm();
+                    stopVibrate();
 
                 }
             }
@@ -248,4 +268,33 @@ public class MainActivity extends Activity {
         buttonStop.setEnabled(false);
         super.onPause();
     }
+
+    void startVibrate() {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+
+                if (vibrator.hasVibrator()) {
+                    long[] pattern = {0, 600, 300};
+                    vibrator.vibrate(pattern, 0);
+                }
+            }
+        });
+    }
+
+
+    void stopVibrate() {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+
+
+                vibrator.cancel();
+
+
+            }
+        });
+    }
+
+
 }
