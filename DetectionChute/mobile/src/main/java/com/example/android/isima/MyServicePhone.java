@@ -148,7 +148,7 @@ public class MyServicePhone extends Service implements SensorEventListener{
             sensorXValueString = String.valueOf(sensorXValue);
             sensorYValueString = String.valueOf(sensorYValue);
             sensorZValueString = String.valueOf(sensorZValue);
-            System.out.println(sensorXValueString+"  " +sensorYValueString + "  "+sensorZValueString);
+            //System.out.println(sensorXValueString+"  " +sensorYValueString + "  "+sensorZValueString);
         }
     }
 

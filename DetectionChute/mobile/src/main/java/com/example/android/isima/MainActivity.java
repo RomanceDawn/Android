@@ -78,8 +78,11 @@ public class MainActivity extends Activity {
             }
         }, 500);
         vibrator = (Vibrator) getSystemService(getApplicationContext().VIBRATOR_SERVICE);
-        startVibrate();
 
+        playAlarm();
+        startVibrate();
+        buttonAlarm.setEnabled(true);
+        buttonStop.setEnabled(true);
 
         // Set message1Button onClickListener to send message 1
         buttonAlarm.setOnClickListener(new View.OnClickListener() {
@@ -88,13 +91,10 @@ public class MainActivity extends Activity {
                 Wearable.MessageApi.sendMessage(apiClient, remoteNodeId, PATH_ALARM, null).setResultCallback(new ResultCallback<MessageApi.SendMessageResult>() {
                     @Override
                     public void onResult(MessageApi.SendMessageResult sendMessageResult) {
-                        if (sendMessageResult.getStatus().isSuccess())
-                        {
+                        if (sendMessageResult.getStatus().isSuccess()) {
                             Toast.makeText(getApplication(), getString(R.string.message1_sent), Toast.LENGTH_SHORT).show();
                             playAlarm();
-                        }
-
-                        else
+                        } else
                             Toast.makeText(getApplication(), getString(R.string.error_message1), Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -105,17 +105,20 @@ public class MainActivity extends Activity {
         buttonStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                stopAlarm();
+                stopVibrate();
+
+
                 Wearable.MessageApi.sendMessage(apiClient, remoteNodeId, PATH_STOP, null).setResultCallback(new ResultCallback<MessageApi.SendMessageResult>() {
                     @Override
                     public void onResult(MessageApi.SendMessageResult sendMessageResult) {
-                        if (sendMessageResult.getStatus().isSuccess())
-                        {
+                        if (sendMessageResult.getStatus().isSuccess()) {
                             Toast.makeText(getApplication(), getString(R.string.message1_sent), Toast.LENGTH_SHORT).show();
-                            stopAlarm();
-                        }
 
-                        else
+                        } else
                             Toast.makeText(getApplication(), getString(R.string.error_message1), Toast.LENGTH_SHORT).show();
+
                     }
                 });
             }
@@ -156,7 +159,7 @@ public class MainActivity extends Activity {
             public void onMessageReceived(MessageEvent messageEvent) {
                 if (messageEvent.getPath().equals(PATH_ALARM)) {
                     playAlarm();
-                    stopVibrate();
+                    startVibrate();
 
                 } else if (messageEvent.getPath().equals(PATH_STOP)) {
                     stopAlarm();
@@ -201,34 +204,31 @@ public class MainActivity extends Activity {
     }
 
 
-    void playAlarm()
-    {
+    void playAlarm() {
+
+        AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+        audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
+
         handler.post(new Runnable() {
             @Override
             public void run() {
-                // set ringer mode to NORMAL
-                AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-                audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-                audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
-                //audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC),0);
-                //play alarm
-
-
                 mediaPlayer.setLooping(true);
                 mediaPlayer.start();
             }
         });
+
+
+
     }
 
 
-    void stopAlarm()
-    {
+    void stopAlarm() {
         handler.post(new Runnable() {
             @Override
             public void run() {
 
-                if(mediaPlayer.isPlaying())
-                {
+                if (mediaPlayer.isPlaying()) {
                     mediaPlayer.pause();
 
                 }
@@ -275,7 +275,7 @@ public class MainActivity extends Activity {
             public void run() {
 
                 if (vibrator.hasVibrator()) {
-                    long[] pattern = {0, 600, 300};
+                    long[] pattern = {0, 400, 200};
                     vibrator.vibrate(pattern, 0);
                 }
             }
