@@ -20,6 +20,26 @@
         android:textColor="#ffffff"
         android:background="@drawable/button_circle_red"
         />
+    <Button
+        android:id="@+id/wrsa"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center|left"
+        android:text="start"
+        android:textSize="8sp"
+        android:textColor="#ffffff"
+
+        />
+    <Button
+        android:id="@+id/wrso"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center|right"
+        android:text="@string/stop_alarm"
+        android:textSize="8sp"
+        android:textColor="#ffffff"
+
+        />
 
 
 </android.support.wearable.view.BoxInsetLayout>
