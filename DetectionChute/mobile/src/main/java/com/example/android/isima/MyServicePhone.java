@@ -12,7 +12,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
-import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -21,14 +20,11 @@ import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
-import java.io.UnsupportedEncodingException;
-
 /**
  * Created by Amine on 22/12/2015.
  */
 public class MyServicePhone extends Service implements SensorEventListener{
 
-    private final String PATH_FILE = "/file";
     private final String PATH_ALARM = "/alarm";
     private final String PATH_STOP = "/stop";
 
@@ -79,15 +75,6 @@ public class MyServicePhone extends Service implements SensorEventListener{
                     dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(dialogIntent);
                 } else if (messageEvent.getPath().equals(PATH_STOP)) {
-
-                }else if (messageEvent.getPath().equals(PATH_FILE)) {
-                    Toast.makeText(getApplication(), "ok", Toast.LENGTH_SHORT).show();
-
-                    try {
-                        System.out.println(new String(messageEvent.getData(),"UTF-8"));
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
 
                 }
             }
