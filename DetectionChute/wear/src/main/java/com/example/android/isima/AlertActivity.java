@@ -39,8 +39,6 @@ public class AlertActivity extends Activity {
     private GoogleApiClient apiClient;
     private View buttonAlarm;
     private View buttonStop;
-    private View buttonWs;
-    private View buttonWe;
     final AnimationDrawable drawable = new AnimationDrawable();
     private NodeApi.NodeListener nodeListener;
     private MessageApi.MessageListener messageListener;
@@ -49,7 +47,7 @@ public class AlertActivity extends Activity {
     private MediaPlayer mediaPlayer;
     private Vibrator vibrator;
     private BoxInsetLayout mContainerView;
-    Runnable ecrire;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -86,9 +84,6 @@ public class AlertActivity extends Activity {
 
         //Alarm = findViewById(R.id.button_alarm);
         buttonStop = findViewById(R.id.button_stop);
-        buttonWs = findViewById(R.id.wrsa);
-        buttonWe = findViewById(R.id.wrso);
-
         //mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.alarm);
         vibrator = (Vibrator) getSystemService(getApplicationContext().VIBRATOR_SERVICE);
         startVibrate();
@@ -145,35 +140,6 @@ public class AlertActivity extends Activity {
             }
 
         });
-
-        buttonWs.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                ecrire = new Runnable() {
-                    @Override
-                    public void run() {
-
-
-                        vibrator.cancel();
-
-
-                    }
-                }
-            }
-
-        });
-
-
-        buttonWe.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-
-            }
-
-        });
-
 
 
         // Create NodeListener that enables buttons when a node is connected and disables buttons when a node is disconnected
